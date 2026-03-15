@@ -38,9 +38,9 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly("com.github.sirblobman.api:core:2.9-SNAPSHOT")
     compileOnly("com.github.sirblobman.combatlogx:api:11.4-SNAPSHOT")
-    implementation("com.mysql:mysql-connector-j:8.4.0")
-    implementation("org.xerial:sqlite-jdbc:3.46.1.3")
-    implementation("com.zaxxer:HikariCP:5.1.0")
+    compileOnly("com.mysql:mysql-connector-j:8.4.0")
+    compileOnly("org.xerial:sqlite-jdbc:3.46.1.3")
+    compileOnly("com.zaxxer:HikariCP:5.1.0")
 
     // test dependencies
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
