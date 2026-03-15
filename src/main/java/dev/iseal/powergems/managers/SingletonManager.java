@@ -4,6 +4,7 @@ import dev.iseal.powergems.listeners.FallingBlockHitListener;
 import dev.iseal.powergems.listeners.powerListeners.SandMoveListener;
 import dev.iseal.powergems.listeners.powerListeners.StrenghtMoveListener;
 import dev.iseal.powergems.managers.Configuration.GeneralConfigManager;
+import dev.iseal.powergems.managers.database.FluxDataManager;
 import dev.iseal.powergems.misc.Utils;
 import dev.iseal.sealLib.Metrics.MetricsManager;
 
@@ -33,6 +34,7 @@ public class SingletonManager {
     public TempDataManager tempDataManager;
     public NamespacedKeyManager namespacedKeyManager;
     public MetricsManager metricsManager;
+    public FluxDataManager fluxDataManager;
 
     public void init() {
         configManager = ConfigManager.getInstance();
@@ -47,6 +49,8 @@ public class SingletonManager {
         utils = new Utils();
         recipeManager = RecipeManager.getInstance();
         cooldownManager = CooldownManager.getInstance();
+        fluxDataManager = FluxDataManager.getInstance();
+        fluxDataManager.init();
         gemCacheExpireTime = configManager.getRegisteredConfigInstance(GeneralConfigManager.class).getGemCacheExpireTime();
     }
 

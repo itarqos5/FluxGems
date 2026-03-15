@@ -318,7 +318,7 @@ public class GemManager implements Dumpable {
     private ItemStack generateItemStack(int gemNumber, int gemLevel) {
         ItemStack gemItem = new ItemStack(gmcm.getGemMaterial(lookUpName(gemNumber)));
         ItemMeta reGemMeta = gemItem.getItemMeta();
-        reGemMeta.setDisplayName(getColor(lookUpName(gemNumber)) + lookUpName(gemNumber) + " Gem");
+        reGemMeta.setDisplayName(getColor(lookUpName(gemNumber)) + lookUpName(gemNumber) + " Flux");
         PersistentDataContainer reDataContainer = reGemMeta.getPersistentDataContainer();
         reDataContainer.set(isGemKey, PersistentDataType.BOOLEAN, true);
         reDataContainer.set(gemPowerKey, PersistentDataType.STRING, lookUpName(gemNumber));

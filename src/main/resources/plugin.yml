@@ -6,6 +6,10 @@ author: ISeal
 load: STARTUP
 depend: [SealLib]
 softdepend: [WorldGuard, CombatLogX]
+libraries:
+  - com.mysql:mysql-connector-j:8.4.0
+  - org.xerial:sqlite-jdbc:3.46.1.3
+  - com.zaxxer:HikariCP:5.1.0
 commands:
   getallgems:
     description: Command to give yourself all gems
@@ -33,6 +37,10 @@ commands:
     usage: /pgDebug
     aliases: [pgd, pgdb]
     permission: powergems.debug
+  selectflux:
+    description: Opens the flux selector GUI
+    usage: /selectflux
+    permission: powergems.fluxplus
 permissions:
     powergems.movegems:
       description: Permission to move gems
@@ -58,6 +66,9 @@ permissions:
     powergems.admin:
         description: Permission to receive admin messages
         default: op
+    powergems.fluxplus:
+        description: Permission to use /selectflux
+        default: op
     powergems.*:
         description: Permission to use all PowerGems commands
         default: op
@@ -70,3 +81,4 @@ permissions:
             powergems.debug: true
             powergems.movegems: true
             powergems.admin: true
+            powergems.fluxplus: true

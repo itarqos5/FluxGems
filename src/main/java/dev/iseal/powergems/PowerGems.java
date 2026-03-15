@@ -97,6 +97,7 @@ public class PowerGems extends JavaPlugin {
         ExceptionHandler.getInstance().setVersion(plugin.getDescription().getVersion());
         sm = SingletonManager.getInstance();
         sm.init();
+        FluxSelectGuiListener fluxSelectGuiListener = new FluxSelectGuiListener();
         if (!getDataFolder().exists())
             log.warning("Generating configuration, this WILL spam the console.");
         firstSetup();
@@ -161,6 +162,8 @@ public class PowerGems extends JavaPlugin {
         pluginManager.registerEvents(sm.recipeManager, this);
         pluginManager.registerEvents(new EntityDamageListener(), this);
         pluginManager.registerEvents(new BundleListener(), this);
+        pluginManager.registerEvents(new FluxJoinListener(), this);
+        pluginManager.registerEvents(fluxSelectGuiListener, this);
         log.info(I18N.translate("REGISTERED_LISTENERS"));
         log.info(I18N.translate("REGISTERING_COMMANDS"));
         Bukkit.getServer().getPluginCommand("givegem").setExecutor(new GiveGemCommand());
@@ -169,6 +172,7 @@ public class PowerGems extends JavaPlugin {
         Bukkit.getServer().getPluginCommand("reloadconfig").setExecutor(new ReloadConfigCommand());
         Bukkit.getServer().getPluginCommand("pgDebug").setExecutor(new DebugCommand());
         Bukkit.getServer().getPluginCommand("getallgems").setExecutor(new GetAllGemsCommand());
+        Bukkit.getServer().getPluginCommand("selectflux").setExecutor(new SelectFluxCommand(fluxSelectGuiListener));
         log.info(I18N.translate("REGISTERED_COMMANDS"));
         AnalyticsManager.INSTANCE.setEnabled("PowerGems", false);
         ExceptionHandler.getInstance().setVersion(plugin.getDescription().getVersion());
@@ -201,6 +205,9 @@ public class PowerGems extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (sm != null && sm.fluxDataManager != null) {
+            sm.fluxDataManager.shutdown();
+        }
         getLogger().info("Shutting down!");
     }
 

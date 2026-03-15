@@ -6,6 +6,10 @@ import dev.iseal.powergems.misc.AbstractClasses.AbstractConfigManager;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -54,6 +58,7 @@ public class GeneralConfigManager extends AbstractConfigManager {
         file.setDefault("runUpdater", true);
         file.setDefault("upgradeGemOnKill", false);
         file.setDefault("analyticsID", generateAnalyticsId());
+        writeCommentedConfigFile();
     }
 
     @Override
@@ -214,5 +219,141 @@ public class GeneralConfigManager extends AbstractConfigManager {
 
     public int unlockNewAbilitiesOnLevelX() {
         return file.getInt("unlockNewAbilitiesOnLevelX");
+    }
+
+    private void writeCommentedConfigFile() {
+        Path path = Path.of(PowerGems.getPlugin().getDataFolder().getPath(), "config.yml");
+        if (Files.exists(path)) {
+            try {
+                try (var lines = Files.lines(path, StandardCharsets.UTF_8)) {
+                    if (lines.anyMatch(line -> line.contains("# PowerGems main configuration"))) {
+                        return;
+                    }
+                }
+            } catch (IOException ignored) {
+                // If we fail to read, we attempt to rewrite safely below.
+            }
+        }
+        String lineSeparator = System.lineSeparator();
+        String blocked = String.join(", ", file.getStringList("blockedReplacingBlocks"));
+
+        String content =
+                "# PowerGems main configuration" + lineSeparator +
+                "# Every option below controls plugin behavior globally." + lineSeparator +
+                lineSeparator +
+                "# Cosmetic particles around players that hold fluxes." + lineSeparator +
+                "allowCosmeticParticleEffects: " + allowCosmeticParticleEffects() + lineSeparator +
+                lineSeparator +
+                "# Send anonymous usage metrics and analytics events." + lineSeparator +
+                "allowMetrics: " + isAllowMetrics() + lineSeparator +
+                lineSeparator +
+                "# Allow moving fluxes into non-player inventories/containers." + lineSeparator +
+                "allowMovingGems: " + isAllowMovingGems() + lineSeparator +
+                lineSeparator +
+                "# Enforce one flux per player inventory." + lineSeparator +
+                "allowOnlyOneGem: " + allowOnlyOneGem() + lineSeparator +
+                lineSeparator +
+                "# Try auto-fixing old/broken flux metadata." + lineSeparator +
+                "attemptFixOldGems: " + doAttemptFixOldGems() + lineSeparator +
+                lineSeparator +
+                "# Blocks protected from Sand flux temporary replacement." + lineSeparator +
+                "blockedReplacingBlocks: [" + blocked + "]" + lineSeparator +
+                lineSeparator +
+                "# Enable random flux crafting recipe." + lineSeparator +
+                "canCraftGems: " + canCraftGems() + lineSeparator +
+                lineSeparator +
+                "# Allow dropping flux items." + lineSeparator +
+                "canDropGems: " + canDropGems() + lineSeparator +
+                lineSeparator +
+                "# Enable flux level upgrade crafting recipes." + lineSeparator +
+                "canUpgradeGems: " + canUpgradeGems() + lineSeparator +
+                lineSeparator +
+                "# Cooldown reduction (seconds) gained per flux level." + lineSeparator +
+                "cooldownBoostPerLevelInSeconds: " + getGemCooldownBoost() + lineSeparator +
+                lineSeparator +
+                "# Ticks between cosmetic particle updates." + lineSeparator +
+                "cosmeticParticleEffectInterval: " + cosmeticParticleEffectInterval() + lineSeparator +
+                lineSeparator +
+                "# Language country code for translations (ex: US, FR)." + lineSeparator +
+                "countryCode: \"" + getCountryCode() + "\"" + lineSeparator +
+                lineSeparator +
+                "# Enable debug mode behavior." + lineSeparator +
+                "debugMode: " + isDebugMode() + lineSeparator +
+                lineSeparator +
+                "# Delay in seconds after join before fluxes can be used." + lineSeparator +
+                "delayToUseGemsOnJoin: " + getDelayToUseGems() + lineSeparator +
+                lineSeparator +
+                "# Apply biome temperature debuffs to opposing flux types." + lineSeparator +
+                "doDebuffForTemperature: " + doDebuffForTemperature() + lineSeparator +
+                lineSeparator +
+                "# Decrease flux level by one when restoring after death." + lineSeparator +
+                "doGemDecay: " + doGemDecay() + lineSeparator +
+                lineSeparator +
+                "# If true, level 1 fluxes are also removed by decay." + lineSeparator +
+                "doGemDecayOnLevel1: " + doGemDecayOnLevelOne() + lineSeparator +
+                lineSeparator +
+                "# Dragon Egg in inventory halves active ability cooldowns." + lineSeparator +
+                "dragonEggHalfCooldown: " + isDragonEggHalfCooldown() + lineSeparator +
+                lineSeparator +
+                "# Allow terrain/entity damage from gem explosions." + lineSeparator +
+                "explosionDamageAllowed: " + isExplosionDamageAllowed() + lineSeparator +
+                lineSeparator +
+                "# Seconds to cache player flux inventory scans." + lineSeparator +
+                "gemCacheExpireTime: " + getGemCacheExpireTime() + lineSeparator +
+                lineSeparator +
+                "# Max attempts when selecting a random active flux." + lineSeparator +
+                "gemCreationAttempts: " + getGemCreationAttempts() + lineSeparator +
+                lineSeparator +
+                "# Show lore descriptions on flux items." + lineSeparator +
+                "gemsHaveDescriptions: " + doGemDescriptions() + lineSeparator +
+                lineSeparator +
+                "# Give a random flux on a player's very first login." + lineSeparator +
+                "giveGemOnFirstLogin: " + getGiveGemOnFirstLogin() + lineSeparator +
+                lineSeparator +
+                "# Required level to unlock gated abilities (like shift)." + lineSeparator +
+                "unlockNewAbilitiesOnLevelX: " + unlockNewAbilitiesOnLevelX() + lineSeparator +
+                lineSeparator +
+                "# Enable passive permanent effects after unlock level." + lineSeparator +
+                "giveGemPermanentEffectOnLevelX: " + giveGemPermanentEffectOnLvlX() + lineSeparator +
+                lineSeparator +
+                "# Gate shift ability until unlock level is reached." + lineSeparator +
+                "unlockShiftAbilityOnLevelX: " + unlockShiftAbilityOnLevelX() + lineSeparator +
+                lineSeparator +
+                "# Enable WorldGuard integration." + lineSeparator +
+                "isWorldGuardSupportEnabled: " + isWorldGuardEnabled() + lineSeparator +
+                lineSeparator +
+                "# Enable CombatLogX integration." + lineSeparator +
+                "isCombatLogXSupportEnabled: " + isCombatLogXEnabled() + lineSeparator +
+                lineSeparator +
+                "# Keep fluxes through death/respawn flow." + lineSeparator +
+                "keepGemsOnDeath: " + doKeepGemsOnDeath() + lineSeparator +
+                lineSeparator +
+                "# Language code for translations (ex: en, fr)." + lineSeparator +
+                "languageCode: \"" + getLanguageCode() + "\"" + lineSeparator +
+                lineSeparator +
+                "# Maximum possible flux level." + lineSeparator +
+                "maxGemLevel: " + getMaxGemLevel() + lineSeparator +
+                lineSeparator +
+                "# Prevent tampering with temporary gem-power entities/blocks." + lineSeparator +
+                "preventGemPowerTampering: " + doGemPowerTampering() + lineSeparator +
+                lineSeparator +
+                "# Use random display colors instead of per-flux configured colors." + lineSeparator +
+                "randomizedColors: " + isRandomizedColors() + lineSeparator +
+                lineSeparator +
+                "# Enable automatic update checker." + lineSeparator +
+                "runUpdater: " + canRunUpdater() + lineSeparator +
+                lineSeparator +
+                "# Upgrade all owned fluxes when a player gets a kill." + lineSeparator +
+                "upgradeGemOnKill: " + upgradeGemOnKill() + lineSeparator +
+                lineSeparator +
+                "# Anonymous analytics identifier for this server." + lineSeparator +
+                "analyticsID: \"" + getAnalyticsID() + "\"" + lineSeparator;
+
+        try {
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, content, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            PowerGems.getPlugin().getLogger().warning("Failed to write commented config.yml: " + e.getMessage());
+        }
     }
 }
