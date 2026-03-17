@@ -20,8 +20,12 @@ public class GemLoreConfigManager extends AbstractConfigManager {
 
     @Override
     public void lateInit() {
+        GemManager gm = SingletonManager.getInstance().gemManager;
         for (int i = 0; i < SingletonManager.TOTAL_GEM_AMOUNT; i++) {
-            createDefaultLore(GemManager.lookUpName(i));
+            String gemName = GemManager.lookUpName(i);
+            createDefaultLore(gemName);
+            String key = "Gem" + gemName + "Lore";
+            file.set(key, gm.normalizeLoreKeybinds(file.getStringList(key)));
         }
     }
 
@@ -111,7 +115,8 @@ public class GemLoreConfigManager extends AbstractConfigManager {
     }
 
     public ArrayList<String> getLore(int gemNumber) {
-        return (ArrayList<String>) file.getStringList("Gem" + GemManager.lookUpName(gemNumber) + "Lore");
+        GemManager gm = SingletonManager.getInstance().gemManager;
+        return gm.normalizeLoreKeybinds(file.getStringList("Gem" + GemManager.lookUpName(gemNumber) + "Lore"));
     }
 
 }

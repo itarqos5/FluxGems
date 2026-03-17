@@ -21,6 +21,7 @@ public class FluxJoinListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        refreshExistingFluxLores(player);
         if (hasAnyFluxInInventory(player)) {
             return;
         }
@@ -102,6 +103,24 @@ public class FluxJoinListener implements Listener {
             }
         }
         return false;
+    }
+
+    private void refreshExistingFluxLores(Player player) {
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (gemManager.isGem(offhand)) {
+            gemManager.attemptFixGem(offhand);
+            player.getInventory().setItemInOffHand(offhand);
+        }
+
+        ItemStack[] contents = player.getInventory().getContents();
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack stack = contents[i];
+            if (!gemManager.isGem(stack)) {
+                continue;
+            }
+            gemManager.attemptFixGem(stack);
+            player.getInventory().setItem(i, stack);
+        }
     }
 
     private void moveOffhandItemSafely(Player player) {

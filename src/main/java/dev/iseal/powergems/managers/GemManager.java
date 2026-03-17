@@ -267,7 +267,7 @@ public class GemManager implements Dumpable {
         int gemLevel = pdc.get(gemLevelKey, PersistentDataType.INTEGER);
         ArrayList<String> lore = new ArrayList<>();
         meta.setLore(lore);
-        lore.addAll(glcm.getLore(gemNumber));
+        lore.addAll(normalizeLoreKeybinds(glcm.getLore(gemNumber)));
         // replace %level% with the actual level
         lore.forEach(line -> {
             if (line.contains("%level%"))
@@ -290,6 +290,35 @@ public class GemManager implements Dumpable {
         } else {
             return createLore(meta, 1);
         }
+    }
+
+    public ArrayList<String> normalizeLoreKeybinds(java.util.List<String> lore) {
+        ArrayList<String> normalized = new ArrayList<>();
+        if (lore == null) {
+            return normalized;
+        }
+        for (String line : lore) {
+            if (line == null) {
+                normalized.add("");
+                continue;
+            }
+            String normalizedLine = line;
+            // Migrate legacy lore controls to the new keybind naming system.
+            normalizedLine = normalizedLine.replaceAll("(?i)\\bleft\\s*click\\b\\s*:?", "Shift + F");
+            normalizedLine = normalizedLine.replaceAll("(?i)\\bright\\s*click\\b\\s*:?", "F");
+            normalizedLine = normalizedLine.replaceAll("(?i)\\brightclick\\b\\s*:?", "F");
+            normalizedLine = normalizedLine.replaceAll("(?i)\\bshift\\s*click\\b\\s*:?", "Shift Rightclick");
+            normalizedLine = normalizedLine.replaceAll("(?i)\\bshift\\s*right\\s*click\\b\\s*:?", "Shift Rightclick");
+            normalizedLine = normalizedLine.replaceAll("(?i)\\bshift\\s*rightclick\\b\\s*:?", "Shift Rightclick");
+            normalizedLine = normalizedLine.replace("Shift + F ", "Shift + F: ");
+            normalizedLine = normalizedLine.replace("F ", "F: ");
+            normalizedLine = normalizedLine.replace("Shift Rightclick ", "Shift Rightclick: ");
+            normalizedLine = normalizedLine.replace("Shift + F:", "Shift + F:");
+            normalizedLine = normalizedLine.replace("F:", "F:");
+            normalizedLine = normalizedLine.replace("Shift Rightclick:", "Shift Rightclick:");
+            normalized.add(normalizedLine);
+        }
+        return normalized;
     }
 
     /**
@@ -519,6 +548,13 @@ public class GemManager implements Dumpable {
         // fix for gems having "Gem" in the name
         if (name.endsWith("Gem")) {
             meta.getPersistentDataContainer().set(gemPowerKey, PersistentDataType.STRING, name.substring(0, name.length() - 3));
+            broken = true;
+        }
+
+        ArrayList<String> previousLore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : null;
+        meta = createLore(meta);
+        ArrayList<String> rebuiltLore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : null;
+        if (!Objects.equals(previousLore, rebuiltLore)) {
             broken = true;
         }
 
