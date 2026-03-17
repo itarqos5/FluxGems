@@ -15,10 +15,10 @@ commands:
     description: Command to give yourself all gems
     usage: /getallgems
     permission: powergems.getallgems
-  givegem:
-    description: Command to give yourself a gem
-    usage: /givegem <gem>
-    permission: powergems.givegem
+  setgem:
+    description: Command to set your current flux
+    usage: /setgem <gem> [level] [player]
+    permission: powergems.setgem
   giveallplayersgem:
     description: Command to give everyone a gem
     usage: /giveallplayersgem <gem>
@@ -48,8 +48,8 @@ permissions:
     powergems.getallgems:
         description: Permission to use /getallgem
         default: op
-    powergems.givegem:
-        description: Permission to use /givegem
+    powergems.setgem:
+        description: Permission to use /setgem
         default: op
     powergems.giveallplayersgem:
         description: Permission to use /giveallgem
@@ -74,7 +74,7 @@ permissions:
         default: op
         children:
             powergems.getallgems: true
-            powergems.givegem: true
+            powergems.setgem: true
             powergems.giveallplayersgem: true
             powergems.checkupdates: true
             powergems.reloadconfig: true

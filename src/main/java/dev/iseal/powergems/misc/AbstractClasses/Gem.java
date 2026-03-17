@@ -53,8 +53,8 @@ public abstract class Gem {
             plr.sendMessage(I18N.translate("CANNOT_USE_GEMS_IN_REGION"));
             return;
         }
-        // check if sneaking, or else pass to other checks
-        if (plr.isSneaking()) {
+        // ability 3: shift + right-click
+        if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) && plr.isSneaking()) {
             // if sneaking, check if shift ability needs to unlock
             if (
                     gcm.unlockShiftAbilityOnLevelX()
@@ -74,6 +74,7 @@ public abstract class Gem {
 
             cm.setShiftClickCooldown(plr, cm.getFullCooldown(level, caller.getSimpleName(), "Shift"), caller);
         } else if (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK) {
+            // ability 2: shift + F (dispatched as left-click action by input listener)
             if (checkIfCooldown("left", plr)) {
                 return;
             }
@@ -84,6 +85,7 @@ public abstract class Gem {
 
             cm.setLeftClickCooldown(plr, cm.getFullCooldown(level, caller.getSimpleName(), "Left"), caller);
         } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+            // ability 1: F (dispatched as right-click action by input listener)
             if (checkIfCooldown("right", plr)) {
                 return;
             }

@@ -126,10 +126,10 @@ public class IronGem extends Gem {
         lore.add(ChatColor.GREEN + "Level %level%");
         lore.add(ChatColor.GREEN + "Abilities");
         lore.add(ChatColor.WHITE
-                + "Right click: Temporarily grants the player increased absorption and knockback resistance.");
+                + "F: Temporarily grants the player increased absorption and knockback resistance.");
         lore.add(ChatColor.WHITE
-                + "Shift click: Temporarily increases the player's armor and armor toughness.");
-        lore.add(ChatColor.WHITE + "Left click: Fires a barrage of spectral arrows in a circle shape.");
+                + "Shift + Right Click: Temporarily increases the player's armor and armor toughness.");
+        lore.add(ChatColor.WHITE + "Shift + F: Fires a barrage of spectral arrows in a circle shape.");
         return lore;
     }
 

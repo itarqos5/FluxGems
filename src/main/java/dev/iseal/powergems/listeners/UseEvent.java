@@ -10,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 public class UseEvent implements Listener {
@@ -21,32 +23,49 @@ public class UseEvent implements Listener {
 
     @EventHandler
     public void onUse(PlayerInteractEvent e) {
-        if (e.getAction().equals(Action.PHYSICAL)) {
+        Action action = e.getAction();
+        if (action.equals(Action.PHYSICAL)) {
             return;
         }
-        Player player = e.getPlayer();
-        ItemStack offHandItem = player.getInventory().getItemInOffHand();
-        ItemStack mainHandItem = player.getInventory().getItemInMainHand();
-        ItemStack item = null;
-        if (gm.isGem(offHandItem)) {
-            item = offHandItem;
-        } else if (gm.isGem(mainHandItem)) {
-            item = mainHandItem;
-        } else {
+        if (action != Action.RIGHT_CLICK_AIR && action != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+        if (!e.getPlayer().isSneaking()) {
+            return;
+        }
+        if (e.getHand() != EquipmentSlot.OFF_HAND) {
             return;
         }
 
-        if (tdm.cantUseGems.containsKey(player)) {
-            if (System.currentTimeMillis() < tdm.cantUseGems.get(player)) {
-                player.sendMessage(I18N.translate("ON_COOLDOWN_GEMS").replace("{time}",
-                        String.valueOf((tdm.cantUseGems.get(player) - System.currentTimeMillis()) / 1000)));
-                return;
-            } else {
-                tdm.cantUseGems.remove(player);
-            }
+        Player player = e.getPlayer();
+        ItemStack offHandItem = player.getInventory().getItemInOffHand();
+        if (!gm.isGem(offHandItem)) {
+            return;
         }
-        Action action = e.getAction();
-        handlePower(player, action, item);
+
+        if (!canUseGems(player)) {
+            return;
+        }
+
+        e.setCancelled(true);
+        handlePower(player, action, offHandItem);
+    }
+
+    @EventHandler
+    public void onSwapHands(PlayerSwapHandItemsEvent event) {
+        Player player = event.getPlayer();
+        ItemStack offHandItem = player.getInventory().getItemInOffHand();
+        if (!gm.isGem(offHandItem)) {
+            return;
+        }
+
+        event.setCancelled(true);
+        if (!canUseGems(player)) {
+            return;
+        }
+
+        Action mappedAction = player.isSneaking() ? Action.LEFT_CLICK_AIR : Action.RIGHT_CLICK_AIR;
+        handlePower(player, mappedAction, offHandItem);
     }
 
     private void handlePower(Player p, Action a, ItemStack item) {
@@ -55,6 +74,21 @@ public class UseEvent implements Listener {
         } else {
             p.sendMessage(I18N.translate("GEM_DISABLED"));
         }
+    }
+
+    private boolean canUseGems(Player player) {
+        if (!tdm.cantUseGems.containsKey(player)) {
+            return true;
+        }
+        long now = System.currentTimeMillis();
+        long blockedUntil = tdm.cantUseGems.get(player);
+        if (now < blockedUntil) {
+            player.sendMessage(I18N.translate("ON_COOLDOWN_GEMS")
+                    .replace("{time}", String.valueOf((blockedUntil - now) / 1000)));
+            return false;
+        }
+        tdm.cantUseGems.remove(player);
+        return true;
     }
 
 }

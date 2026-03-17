@@ -166,7 +166,9 @@ public class PowerGems extends JavaPlugin {
         pluginManager.registerEvents(fluxSelectGuiListener, this);
         log.info(I18N.translate("REGISTERED_LISTENERS"));
         log.info(I18N.translate("REGISTERING_COMMANDS"));
-        Bukkit.getServer().getPluginCommand("givegem").setExecutor(new GiveGemCommand());
+        SetGemCommand setGemCommand = new SetGemCommand();
+        Bukkit.getServer().getPluginCommand("setgem").setExecutor(setGemCommand);
+        Bukkit.getServer().getPluginCommand("setgem").setTabCompleter(setGemCommand);
         Bukkit.getServer().getPluginCommand("giveallplayersgem").setExecutor(new GiveAllPlayersGemCommand());
         Bukkit.getServer().getPluginCommand("checkupdates").setExecutor(new CheckUpdateCommand());
         Bukkit.getServer().getPluginCommand("reloadconfig").setExecutor(new ReloadConfigCommand());

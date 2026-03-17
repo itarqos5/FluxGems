@@ -102,9 +102,9 @@ public class WaterGem extends Gem {
         ArrayList<String> lore = new ArrayList<>();
         lore.add(ChatColor.GREEN + "Level %level%");
         lore.add(ChatColor.GREEN + "Abilities");
-        lore.add(ChatColor.WHITE + "Right click: Propel yourself forward in water, creating bubbles.");
-        lore.add(ChatColor.WHITE + "Shift click: Create a temporary water cube around you, granting Dolphin's Grace.");
-        lore.add(ChatColor.WHITE + "Left click: Moisturize farmland blocks around you.");
+        lore.add(ChatColor.WHITE + "F: Propel yourself forward in water, creating bubbles.");
+        lore.add(ChatColor.WHITE + "Shift + Right Click: Create a temporary water cube around you, granting Dolphin's Grace.");
+        lore.add(ChatColor.WHITE + "Shift + F: Moisturize farmland blocks around you.");
         lore.add(ChatColor.BLUE + "Passive: Power up yourself with water");
         return lore;
     }

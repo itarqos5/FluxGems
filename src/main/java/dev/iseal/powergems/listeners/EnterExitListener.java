@@ -41,7 +41,6 @@ public class EnterExitListener implements Listener {
         UUID playerUUID = plr.getUniqueId();
         if (!playerJoined.contains(String.valueOf(playerUUID))) {
             playerJoined.set(String.valueOf(playerUUID), System.currentTimeMillis());
-            plr.getInventory().addItem(gm.createGem());
         }
     }
 

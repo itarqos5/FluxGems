@@ -165,10 +165,10 @@ public class SandGem extends Gem {
         lore.add(ChatColor.GREEN + "Level %level%");
         lore.add(ChatColor.GREEN + "Abilities");
         lore.add(ChatColor.WHITE
-                + "Right click: Weakens the target player, reducing their strength temporarily.");
+                + "F: Weakens the target player, reducing their strength temporarily.");
         lore.add(ChatColor.WHITE
-                + "Shift click: Engulfs the target player in darkness, impairing their vision and movement.");
-        lore.add(ChatColor.WHITE + "Left click: Creates a sand block temporarily that slows enemies passing on it.");
+                + "Shift + Right Click: Engulfs the target player in darkness, impairing their vision and movement.");
+        lore.add(ChatColor.WHITE + "Shift + F: Creates a sand block temporarily that slows enemies passing on it.");
         return lore;
     }
 

@@ -83,6 +83,23 @@ public class FluxDataManager {
         });
     }
 
+    public CompletableFuture<Void> setFlux(UUID uuid, String flux, int level) {
+        long now = System.currentTimeMillis();
+        return getPlayerData(uuid).thenCompose(existing -> {
+            FluxPlayerData updated = new FluxPlayerData(
+                    uuid,
+                    flux,
+                    Math.max(1, level),
+                    true,
+                    existing.getLastSelectFlux(),
+                    existing.getCreatedAt() <= 0L ? now : existing.getCreatedAt(),
+                    now
+            );
+            cache.put(uuid, updated);
+            return database.save(updated);
+        });
+    }
+
     public long getRemainingSelectCooldown(FluxPlayerData data) {
         long elapsed = System.currentTimeMillis() - data.getLastSelectFlux();
         if (data.getLastSelectFlux() <= 0L || elapsed >= SELECT_FLUX_COOLDOWN_MS) {

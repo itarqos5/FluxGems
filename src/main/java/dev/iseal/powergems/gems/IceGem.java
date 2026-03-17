@@ -104,9 +104,9 @@ public class IceGem extends Gem {
         ArrayList<String> lore = new ArrayList<>();
         lore.add(ChatColor.GREEN + "Level %level%");
         lore.add(ChatColor.GREEN + "Abilities");
-        lore.add(ChatColor.WHITE + "Right click: Throw an ice block, dealing damage to whoever gets hit");
-        lore.add(ChatColor.WHITE + "Shift click: Spawns snow golems to fight for you");
-        lore.add(ChatColor.WHITE + "Left click: Freezes the player you aim giving him slowness");
+        lore.add(ChatColor.WHITE + "F: Throw an ice block, dealing damage to whoever gets hit");
+        lore.add(ChatColor.WHITE + "Shift + Right Click: Spawns snow golems to fight for you");
+        lore.add(ChatColor.WHITE + "Shift + F: Freezes the player you aim giving him slowness");
         return lore;
     }
 
