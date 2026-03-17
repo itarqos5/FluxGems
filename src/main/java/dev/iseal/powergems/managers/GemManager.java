@@ -360,14 +360,12 @@ public class GemManager implements Dumpable {
      *         inventory.
      */
     public ArrayList<ItemStack> getPlayerGems(Player plr) {
-        // isValid() checks if the cache is expired or if something became null - bukkit be weird fr fr
-        if (gemCache.containsKey(plr.getUniqueId()) && gemCache.get(plr.getUniqueId()).isValid()) {
-            return gemCache.get(plr.getUniqueId()).getOwnedGems();
-        }
         ArrayList<ItemStack> foundGems = new ArrayList<>(1);
         Arrays.stream(plr.getInventory().getContents().clone()).filter(this::isGem).forEach(foundGems::add);
-        if (isGem(plr.getInventory().getItemInOffHand()))
-            foundGems.add(plr.getInventory().getItemInOffHand());
+        ItemStack offHand = plr.getInventory().getItemInOffHand();
+        if (isGem(offHand) && foundGems.stream().noneMatch(existing -> existing == offHand)) {
+            foundGems.add(offHand);
+        }
         gemCache.put(plr.getUniqueId(), new GemCacheItem(foundGems));
         return foundGems;
     }
