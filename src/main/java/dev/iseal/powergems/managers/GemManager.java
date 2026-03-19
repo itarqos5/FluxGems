@@ -18,6 +18,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,6 +66,13 @@ public class GemManager implements Dumpable {
     private static final ArrayList<String> gemIdLookup = new ArrayList<>();
     private final HashMap<UUID, GemCacheItem> gemCache = new HashMap<>();
     private final HashMap<String, Gem> gems = new HashMap<>();
+    private static final Pattern LEVEL_PATTERN = Pattern.compile("(?i)level\\s+(\\d+)");
+    private static final Pattern LORE_KEYBIND_PATTERN = Pattern.compile(
+            "^(?<colors>(?:§[0-9A-FK-ORa-fk-or])*)\\s*"
+                    + "(?<keybind>shift\\s*\\+\\s*right\\s*click|shift\\s*right\\s*click|shift\\s*rightclick|shift\\s*click|shift\\s*\\+\\s*f|shift\\+f|left\\s*click|right\\s*click|rightclick|f)"
+                    + "\\s*:?(?<description>.*)$",
+            Pattern.CASE_INSENSITIVE
+    );
 
     /**
      * Initializes the gem manager with necessary keys and configurations.
@@ -145,6 +154,13 @@ public class GemManager implements Dumpable {
         if (!is.hasItemMeta())
             return false;
         return is.getItemMeta().getPersistentDataContainer().has(isGemKey, PersistentDataType.BOOLEAN);
+    }
+
+    public boolean isLikelyGem(ItemStack item) {
+        if (isGem(item)) {
+            return true;
+        }
+        return detectLegacyGemName(item) != null;
     }
 
     /**
@@ -302,21 +318,28 @@ public class GemManager implements Dumpable {
                 normalized.add("");
                 continue;
             }
-            String normalizedLine = line;
-            // Migrate legacy lore controls to the new keybind naming system.
-            normalizedLine = normalizedLine.replaceAll("(?i)\\bleft\\s*click\\b\\s*:?", "Shift + F");
-            normalizedLine = normalizedLine.replaceAll("(?i)\\bright\\s*click\\b\\s*:?", "F");
-            normalizedLine = normalizedLine.replaceAll("(?i)\\brightclick\\b\\s*:?", "F");
-            normalizedLine = normalizedLine.replaceAll("(?i)\\bshift\\s*click\\b\\s*:?", "Shift Rightclick");
-            normalizedLine = normalizedLine.replaceAll("(?i)\\bshift\\s*right\\s*click\\b\\s*:?", "Shift Rightclick");
-            normalizedLine = normalizedLine.replaceAll("(?i)\\bshift\\s*rightclick\\b\\s*:?", "Shift Rightclick");
-            normalizedLine = normalizedLine.replace("Shift + F ", "Shift + F: ");
-            normalizedLine = normalizedLine.replace("F ", "F: ");
-            normalizedLine = normalizedLine.replace("Shift Rightclick ", "Shift Rightclick: ");
-            normalizedLine = normalizedLine.replace("Shift + F:", "Shift + F:");
-            normalizedLine = normalizedLine.replace("F:", "F:");
-            normalizedLine = normalizedLine.replace("Shift Rightclick:", "Shift Rightclick:");
-            normalized.add(normalizedLine);
+            Matcher matcher = LORE_KEYBIND_PATTERN.matcher(line);
+            if (!matcher.matches()) {
+                normalized.add(line);
+                continue;
+            }
+
+            String colors = Objects.requireNonNullElse(matcher.group("colors"), "");
+            String keybind = Objects.requireNonNullElse(matcher.group("keybind"), "");
+            String description = Objects.requireNonNullElse(matcher.group("description"), "").trim();
+            String compactKeybind = keybind.replaceAll("\\s+", "").toLowerCase(Locale.ROOT);
+
+            String canonicalKeybind = switch (compactKeybind) {
+                case "f", "rightclick" -> "F";
+                case "leftclick", "shift+f", "shiftf" -> "Shift+F";
+                default -> "Shift Rightclick";
+            };
+
+            if (description.isEmpty()) {
+                normalized.add(colors + canonicalKeybind);
+                continue;
+            }
+            normalized.add(colors + canonicalKeybind + ": " + description);
         }
         return normalized;
     }
@@ -563,6 +586,101 @@ public class GemManager implements Dumpable {
             item.setItemMeta(meta);
             l.warning("An error in a gem has been found and fixed!");
         }
+    }
+
+    public ItemStack rebuildGem(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) {
+            return item;
+        }
+
+        String name;
+        int level;
+        if (isGem(item)) {
+            name = getName(item);
+            level = getLevel(item);
+        } else {
+            name = detectLegacyGemName(item);
+            level = detectLegacyGemLevel(item);
+        }
+
+        if (Objects.equals(name, "")) {
+            return item;
+        }
+        if (name.endsWith("Gem")) {
+            name = name.substring(0, name.length() - 3);
+        }
+
+        ItemStack rebuilt = createGem(name, Math.max(1, level));
+        if (rebuilt == null) {
+            return item;
+        }
+
+        rebuilt.setAmount(item.getAmount());
+        return rebuilt;
+    }
+
+    private String detectLegacyGemName(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) {
+            return null;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        String displayName = meta.hasDisplayName() ? ChatColor.stripColor(meta.getDisplayName()) : "";
+        List<String> lore = meta.hasLore() ? meta.getLore() : Collections.emptyList();
+
+        boolean looksLikeGemLore = lore != null && lore.stream()
+                .filter(Objects::nonNull)
+                .map(ChatColor::stripColor)
+                .anyMatch(line -> line != null && (
+                        line.equalsIgnoreCase("Abilities")
+                                || line.toLowerCase(Locale.ROOT).contains("left click")
+                                || line.toLowerCase(Locale.ROOT).contains("right click")
+                                || line.toLowerCase(Locale.ROOT).contains("rightclick")
+                                || line.toLowerCase(Locale.ROOT).contains("shift click")
+                                || line.toLowerCase(Locale.ROOT).contains("shift rightclick")
+                                || line.toLowerCase(Locale.ROOT).contains("shift + right click")
+                                || line.toLowerCase(Locale.ROOT).contains("shift+f")
+                                || line.startsWith("F:")
+                                || line.startsWith("Shift + F:")
+                                || line.startsWith("Shift+F:")
+                                || line.startsWith("Shift Rightclick:")
+                ));
+
+        if (!looksLikeGemLore && (displayName == null || (!displayName.contains("Flux") && !displayName.contains("Gem")))) {
+            return null;
+        }
+
+        for (String gemName : gemIdLookup) {
+            if (displayName != null && displayName.toLowerCase(Locale.ROOT).contains(gemName.toLowerCase(Locale.ROOT))) {
+                return gemName;
+            }
+        }
+        return null;
+    }
+
+    private int detectLegacyGemLevel(ItemStack item) {
+        if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasLore()) {
+            return 1;
+        }
+
+        for (String line : item.getItemMeta().getLore()) {
+            if (line == null) {
+                continue;
+            }
+            String stripped = ChatColor.stripColor(line);
+            if (stripped == null) {
+                continue;
+            }
+            Matcher matcher = LEVEL_PATTERN.matcher(stripped);
+            if (matcher.find()) {
+                try {
+                    return Integer.parseInt(matcher.group(1));
+                } catch (NumberFormatException ignored) {
+                    return 1;
+                }
+            }
+        }
+        return 1;
     }
 
     @Override

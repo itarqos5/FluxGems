@@ -77,8 +77,8 @@ public class StrengthGem extends Gem {
         lore.add(ChatColor.GREEN + "Level %level%");
         lore.add(ChatColor.GREEN + "Abilities");
         lore.add(ChatColor.WHITE + "F: Saturation, Strength and Resistance (all lvl 2)");
-        lore.add(ChatColor.WHITE + "Shift + Right Click: An arena that keeps anyone from entering, useful to heal");
-        lore.add(ChatColor.WHITE + "Shift + F: A shockwave that sends everyone near flying and damages them");
+        lore.add(ChatColor.WHITE + "Shift Rightclick: An arena that keeps anyone from entering, useful to heal");
+        lore.add(ChatColor.WHITE + "Shift+F: A shockwave that sends everyone near flying and damages them");
         return lore;
     }
 

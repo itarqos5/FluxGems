@@ -56,8 +56,8 @@ public class HealingGem extends Gem {
         lore.add(ChatColor.GREEN + "Level %level%");
         lore.add(ChatColor.GREEN + "Abilities");
         lore.add(ChatColor.WHITE + "F: Parry");
-        lore.add(ChatColor.WHITE + "Shift + Right Click: Instant heal");
-        lore.add(ChatColor.WHITE + "Shift + F: 1 minute of regeneration 2");
+        lore.add(ChatColor.WHITE + "Shift Rightclick: Instant heal");
+        lore.add(ChatColor.WHITE + "Shift+F: 1 minute of regeneration 2");
         return lore;
     }
 

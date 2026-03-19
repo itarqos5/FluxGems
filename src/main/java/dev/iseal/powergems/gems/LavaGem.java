@@ -90,8 +90,8 @@ public class LavaGem extends Gem {
         lore.add(ChatColor.GREEN + "Level %level%");
         lore.add(ChatColor.GREEN + "Abilities");
         lore.add(ChatColor.WHITE + "F: Make a wall of lava");
-        lore.add(ChatColor.WHITE + "Shift + Right Click: Spawn a blaze to fight for you");
-        lore.add(ChatColor.WHITE + "Shift + F: 1 minute of Fire resistance");
+        lore.add(ChatColor.WHITE + "Shift Rightclick: Spawn a blaze to fight for you");
+        lore.add(ChatColor.WHITE + "Shift+F: 1 minute of Fire resistance");
         return lore;
     }
 

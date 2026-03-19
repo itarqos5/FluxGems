@@ -164,6 +164,7 @@ public class PowerGems extends JavaPlugin {
         pluginManager.registerEvents(new BundleListener(), this);
         pluginManager.registerEvents(new FluxJoinListener(), this);
         pluginManager.registerEvents(fluxSelectGuiListener, this);
+        log.warning("[FluxJoinDebug] Join debug instrumentation active in this build.");
         log.info(I18N.translate("REGISTERED_LISTENERS"));
         log.info(I18N.translate("REGISTERING_COMMANDS"));
         SetGemCommand setGemCommand = new SetGemCommand();

@@ -125,9 +125,9 @@ public class AirGem extends Gem {
         lore.add(ChatColor.WHITE
                 + "F: Creates a tether of wind between the player and a target player, pulling the target closer.");
         lore.add(ChatColor.WHITE
-                + "Shift + Right Click: Creates a cloud of smoke, granting temporary invisibility and propelling the player forward.");
+                + "Shift Rightclick: Creates a cloud of smoke, granting temporary invisibility and propelling the player forward.");
         lore.add(ChatColor.WHITE
-                + "Shift + F: Unleashes a burst of wind, launching nearby entities into the air and dealing damage.");
+                + "Shift+F: Unleashes a burst of wind, launching nearby entities into the air and dealing damage.");
         return lore;
     }
 

@@ -99,9 +99,9 @@ public class FireGem extends Gem {
         lore.add(ChatColor.WHITE
                 + "F: Creates a fiery aura around the player, granting fire resistance and igniting nearby air blocks.");
         lore.add(ChatColor.WHITE
-                + "Shift + Right Click: Triggers a powerful explosion at the player's location, damaging nearby entities and applying fire damage.");
+                + "Shift Rightclick: Triggers a powerful explosion at the player's location, damaging nearby entities and applying fire damage.");
         lore.add(ChatColor.WHITE
-                + "Shift + F: Launches a fireball in the direction the player is facing, causing an explosion upon impact.");
+                + "Shift+F: Launches a fireball in the direction the player is facing, causing an explosion upon impact.");
         return lore;
     }
 

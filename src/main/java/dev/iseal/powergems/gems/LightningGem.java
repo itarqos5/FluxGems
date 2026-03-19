@@ -82,8 +82,8 @@ public class LightningGem extends Gem {
         lore.add(ChatColor.WHITE
                 + "F: Strikes lightning at the target location and nearby entities, damaging them.");
         lore.add(ChatColor.WHITE
-                + "Shift + Right Click: Emits a thunder sound effect and applies a glowing potion effect to nearby entities, excluding the player.");
-        lore.add(ChatColor.WHITE + "Shift + F: Launches the player forward in the direction rail.");
+                + "Shift Rightclick: Emits a thunder sound effect and applies a glowing potion effect to nearby entities, excluding the player.");
+        lore.add(ChatColor.WHITE + "Shift+F: Launches the player forward in the direction rail.");
         return lore;
     }
 

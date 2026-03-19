@@ -5,6 +5,7 @@ import dev.iseal.powergems.managers.GemManager;
 import dev.iseal.powergems.managers.SingletonManager;
 import dev.iseal.powergems.managers.database.FluxDataManager;
 import dev.iseal.powergems.managers.database.FluxPlayerData;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,17 +13,25 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Logger;
 
 public class FluxJoinListener implements Listener {
 
     private final GemManager gemManager = SingletonManager.getInstance().gemManager;
     private final FluxDataManager fluxDataManager = SingletonManager.getInstance().fluxDataManager;
+    private final Logger logger = PowerGems.getPlugin().getLogger();
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        debug("Join handler fired for " + player.getName());
         refreshExistingFluxLores(player);
         if (hasAnyFluxInInventory(player)) {
+            debug("Player " + player.getName() + " already has a recognized flux after refresh.");
             return;
         }
 
@@ -107,19 +116,11 @@ public class FluxJoinListener implements Listener {
 
     private void refreshExistingFluxLores(Player player) {
         ItemStack offhand = player.getInventory().getItemInOffHand();
-        if (gemManager.isGem(offhand)) {
-            gemManager.attemptFixGem(offhand);
-            player.getInventory().setItemInOffHand(offhand);
-        }
+        refreshSlot(player, "offhand", -1, offhand);
 
         ItemStack[] contents = player.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {
-            ItemStack stack = contents[i];
-            if (!gemManager.isGem(stack)) {
-                continue;
-            }
-            gemManager.attemptFixGem(stack);
-            player.getInventory().setItem(i, stack);
+            refreshSlot(player, "inventory", i, contents[i]);
         }
     }
 
@@ -134,5 +135,57 @@ public class FluxJoinListener implements Listener {
             return;
         }
         player.getWorld().dropItemNaturally(player.getLocation(), offhand);
+    }
+
+    private void refreshSlot(Player player, String container, int slot, ItemStack stack) {
+        if (stack == null || stack.getType() == Material.AIR) {
+            return;
+        }
+
+        boolean isGem = gemManager.isGem(stack);
+        boolean isLikelyGem = gemManager.isLikelyGem(stack);
+        debug("Inspecting " + container + " slot " + slot + " for " + player.getName()
+                + " | isGem=" + isGem
+                + " | isLikelyGem=" + isLikelyGem
+                + " | item=" + describeItem(stack));
+
+        if (!isLikelyGem) {
+            return;
+        }
+
+        ItemStack rebuilt = gemManager.rebuildGem(stack);
+        debug("Rebuilt " + container + " slot " + slot + " for " + player.getName()
+                + " | before=" + describeItem(stack)
+                + " | after=" + describeItem(rebuilt));
+
+        if ("offhand".equals(container)) {
+            player.getInventory().setItemInOffHand(rebuilt);
+            return;
+        }
+        player.getInventory().setItem(slot, rebuilt);
+    }
+
+    private String describeItem(ItemStack item) {
+        if (item == null) {
+            return "null";
+        }
+
+        ItemMeta meta = item.hasItemMeta() ? item.getItemMeta() : null;
+        String displayName = meta != null && meta.hasDisplayName() ? ChatColor.stripColor(meta.getDisplayName()) : "";
+        List<String> lore = meta != null && meta.hasLore() ? meta.getLore() : null;
+        String firstLore = lore != null && !lore.isEmpty() ? ChatColor.stripColor(Objects.requireNonNullElse(lore.get(0), "")) : "";
+        String secondLore = lore != null && lore.size() > 1 ? ChatColor.stripColor(Objects.requireNonNullElse(lore.get(1), "")) : "";
+        String thirdLore = lore != null && lore.size() > 2 ? ChatColor.stripColor(Objects.requireNonNullElse(lore.get(2), "")) : "";
+
+        return "type=" + item.getType()
+                + ", amount=" + item.getAmount()
+                + ", name=" + displayName
+                + ", firstLore=" + firstLore
+                + ", secondLore=" + secondLore
+                + ", thirdLore=" + thirdLore;
+    }
+
+    private void debug(String message) {
+        logger.warning("[FluxJoinDebug] " + message);
     }
 }
